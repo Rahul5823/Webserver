@@ -1,0 +1,6 @@
+GET /index HTTP/1.1
+Host: https://rit.edu
+User-Agent: Mozilla/5.0
+Accept: text/html
+Connection: keep-alive
+
