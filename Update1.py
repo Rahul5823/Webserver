@@ -18,7 +18,7 @@ def parse_request(request_str):
 
         # Check if method is GET or POST
         # More methods will be added later on in the project
-        if method not in ['GET', 'POST']:
+        if method not in ['GET', 'POST', 'PUT', 'DELETE', 'CONNECT']:
             return "400 BAD REQUEST"
 
         # Check if the request is valid or not based on the requirements mentioned
@@ -30,7 +30,7 @@ def parse_request(request_str):
 
 def main():
     if len(sys.argv) != 2:
-        print("Invalid arguments Usage: python Update1.py <PATH TO 'request.txt'>")
+        print("Invalid arguments Usage: python Update2.py <PATH TO 'request.txt'>")
         sys.exit(1)
 
     file_path = sys.argv[1]
