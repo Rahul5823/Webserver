@@ -1,0 +1,15 @@
+[Unit]
+Description=Python Server Service
+After=network.target
+
+[Service]
+User= "rahul"
+Group= "rahul"
+WorkingDirectory=/home/rahul
+Environment="PATH=/home/rahul/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ExecStart=/usr/bin/python3 /home/rahul/server.py "127.0.0.1" 8080 /home/rahul/cert.pem /home/rahul/key.pem
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

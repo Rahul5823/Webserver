@@ -1,0 +1,124 @@
+---
+- name: Install Apache web server and PHP
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Apache web server and PHP
+      apt:
+        name:
+          - apache2
+          - php
+          - libapache2-mod-php
+        state: present
+
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
+
+- name: Deploy Python server
+  hosts: host
+  become: true
+  tasks:
+    - name: Install Python and pip
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install required Python packages
+      ansible.builtin.pip:
+        name:
+          - HTTP_parser
+        executable: pip3
+        extra_args: --user
+
+
+    - name: Copy server.py script
+      ansible.builtin.copy:
+        src: /home/rahul/Downloads/web-server-rahul-main/Code/server.py
+        dest: /home/rahul/server.py
+        mode: 0755
+        owner: rahul
+        group: rahul
+
+    - name: Copy parser_http.py script
+      ansible.builtin.copy:
+        src: /home/rahul/Downloads/web-server-rahul-main/Code/parser_http.py
+        dest: /home/rahul/parser_http.py
+        mode: 0755
+        owner: rahul
+        group: rahul
+    
+    - name: Check if cert.pem exists
+      ansible.builtin.stat:
+        path: /home/rahul/cert.pem
+      register: cert_result
+ 
+    - name: Check if key.pem exists
+      ansible.builtin.stat:
+        path: /home/rahul/key.pem
+      register: key_result
+
+    - name: Move SSL certificate to /home/rahul
+      ansible.builtin.copy:
+        src: /home/rahul/Downloads/web-server-rahul-main/cert.pem
+        dest: /home/rahul/cert.pem
+      when: not cert_result.stat.exists
+
+    - name: Move SSL key to /home/rahul
+      ansible.builtin.copy:
+        src: /home/rahul/Downloads/web-server-rahul-main/key.pem
+        dest: /home/rahul/key.pem
+      when: not key_result.stat.exists
+
+
+    - name: Create SSL certificate
+      ansible.builtin.command: openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365 -subj "/C=US/ST=State/L=City/O=Organization/OU=IT Department/CN={{ ansible_fqdn }}"
+      args:
+        creates: /home/rahul/cert.pem
+
+    - name: Move SSL certificate to /home/rahul
+      ansible.builtin.copy:
+        src: cert.pem
+        dest: /home/rahul/cert.pem
+        remote_src: yes
+
+    - name: Move SSL key to /home/rahul
+      ansible.builtin.copy:
+        src: key.pem
+        dest: /home/rahul/key.pem
+        remote_src: yes
+    - name: Install parser_http package
+      pip:
+        name: parser_http
+
+    - name: Create systemd service file for Python server
+      ansible.builtin.template:
+        src: python_server.service.j2
+        dest: /etc/systemd/system/python_server.service
+      vars:
+        user: rahul
+        group: rahul
+      become: true
+
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      become: true
+
+    - name: Enable and start Python server service
+      ansible.builtin.systemd:
+        name: python_server
+        state: started
+        enabled: yes
+      become: true
+
+    - name: Start Python server
+
+      command: nohup python3 /home/rahul/server.py "{{ ansible_default_ipv4.address }}" 8080 /home/rahul/cert.pem /home/rahul/key.pem &> /dev/null&
+      async: 10
+      poll: 0

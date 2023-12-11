@@ -1,0 +1,9 @@
+PUT /helloworld/test HTTP/1.1
+Host: localhost
+Content-Type: application/json
+Content-Length: 48
+
+{
+  "username": "rahul",
+  "email": "rahul@gomail.com"
+}

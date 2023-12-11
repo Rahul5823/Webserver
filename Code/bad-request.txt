@@ -1,0 +1,8 @@
+GET /page-not-found HTTP/3.0
+Host: www.exampleforbad.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/90.0.4430.212 Safari/537.36
+Accept: text/plain, application/json
+Accept-Language: fr-CA,fr;q=0.8,en-US;q=0.6,en;q=0.4
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Cache-Control: no-cache

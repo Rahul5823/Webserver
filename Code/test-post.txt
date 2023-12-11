@@ -1,0 +1,6 @@
+POST /helloworld/test HTTP/1.1
+Host: localhost
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 27
+
+field1=52&field2=39
